@@ -1,18 +1,13 @@
-/*******************************************************
- Windows HID simplification
-
- Alan Ott
- Signal 11 Software
-
- 8/22/2009
-
- Copyright 2009, All Rights Reserved.
- 
- This contents of this file may be used by anyone
- for any reason without any conditions and may be
- used as a starting point for your own applications
- which use HIDAPI.
-********************************************************/
+/*
+ * melfas_update_tool
+ *
+ * Copyright (C) 2019 MELFAS Inc.
+ *
+ *
+ * main.c
+ *
+ * Version : 2019.06.12
+ */
 
 #include <stdio.h>
 #include <libgen.h>
