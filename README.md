@@ -2,7 +2,7 @@
  - Melfas Touchscreen Firmware update Tool (HID-USB Interface)
 
 # compilation
- - make: to build the exectue project "melfas_update_tool/src".
+ - make: to build the exectue project "melfas_update_tool".
  - $ make
  
 # Run
