@@ -14,15 +14,15 @@ CFLAGS   ?= -g -pthread
 CXX      ?= g++
 CXXFLAGS ?= -g -pthread
 
-COBJS     = ../lib/hid-libusb.o
-CPPOBJS   = main.o
-CPPOBJS   += mfsConfig.o
+COBJS     = lib/hid-libusb.o
+CPPOBJS   = src/main.o
+CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
-LIBS      = `pkg-config libusb-1.0 libudev --libs`
-INCLUDES ?= -I../include `pkg-config libusb-1.0 --cflags`
+LIBS      = lib/libusb-1.0.a -ludev -pthread
+INCLUDES ?= -I include/
 
 melfas_update_tool: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c $(INCLUDES) $< -o $@
