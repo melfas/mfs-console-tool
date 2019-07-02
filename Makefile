@@ -11,14 +11,14 @@ all: melfas_update_tool
 CC       ?= gcc
 CFLAGS   ?= -g -pthread
 
-CXX      ?= g++
+CXX      ?= g++ 
 CXXFLAGS ?= -g -pthread
 
 COBJS     = lib/hid-libusb.o
 CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
-LIBS      = lib/libusb-1.0.a -ludev -pthread
+LIBS      = -L./lib -lusb-1.0 -ludev
 INCLUDES ?= -I include/
 
 melfas_update_tool: $(OBJS)
