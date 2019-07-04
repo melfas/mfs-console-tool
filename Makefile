@@ -7,7 +7,6 @@
 ###############################################
 
 all: melfas_update_tool
-HOME_DIR = ${HOME}/trunk
 
 CC       ?= gcc
 CFLAGS   ?= -g
@@ -20,11 +19,11 @@ CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = -fPIC
-LIBS      = -L$(HOME_DIR)/chroot/usr/lib64 -lusb-1.0 -ludev -lrt -lpthread
-INCLUDES ?= -I include/ -I$(HOME_DIR)/chroot/usr/include/ -I$(HOME_DIR)/chroot/usr/include/libusb-1.0/
+LIBS      = -L./lib -lusb-1.0 -ludev -lrt -lpthread
+INCLUDES ?= -I include/
 
 melfas_update_tool: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c $(INCLUDES) $< -o $@
