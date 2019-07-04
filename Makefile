@@ -21,7 +21,7 @@ CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = -fPIC
 LIBS      = -L$(HOME_DIR)/chroot/usr/lib64 -lusb-1.0 -ludev -lrt -lpthread
-INCLUDES ?= -I include/ -I $(HOME_DIR)/chroot/usr/include/ -I $(HOME_DIR)/chroot/usr/include/libusb-1.0/
+INCLUDES ?= -I include/ -I$(HOME_DIR)/chroot/usr/include/ -I$(HOME_DIR)/chroot/usr/include/libusb-1.0/
 
 melfas_update_tool: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
