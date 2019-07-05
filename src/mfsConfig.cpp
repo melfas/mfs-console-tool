@@ -69,7 +69,7 @@ void mfsConfig::ParseArgs(int argc, char* argv[])
             }
 			if (strcmp(pParam, "-fw_version") == 0)
 			{
-				mnAction = ACTION_DOWNLOAD;
+				mnAction = ACTION_FW_VERSION;
 				nPid = strtol((char *)argv[2], NULL, 16);
 				printf("\nPID : 0x%04X\n", nPid);
 				return;

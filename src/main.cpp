@@ -437,7 +437,7 @@ int main(int argc, char* argv[])
 	if( nAction == ACTION_NULL || nAction == ACTION_HELP)
 	{
 		printf("===========================================================\n");
-		printf("melfas_update_tool for chromeOS (HID_USB) - v1.0.5\n\n");
+		printf("melfas_update_tool for chromeOS (HID_USB) - v1.0.6\n\n");
 		printf("ex) melfas_update_tool -fw_update pid fw_name\n");		
 		printf("ex) melfas_update_tool -fw_version pid\n");		
 		printf("===========================================================\n");
