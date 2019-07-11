@@ -437,7 +437,7 @@ int main(int argc, char* argv[])
 	if( nAction == ACTION_NULL || nAction == ACTION_HELP)
 	{
 		printf("===========================================================\n");
-		printf("melfas_update_tool for chromeOS (HID_USB) - v1.0.6\n\n");
+		printf("melfas_update_tool for chromeOS (HID_USB) - v1.0.7\n\n");
 		printf("ex) melfas_update_tool -fw_update pid fw_name\n");		
 		printf("ex) melfas_update_tool -fw_version pid\n");		
 		printf("===========================================================\n");
@@ -502,8 +502,6 @@ int main(int argc, char* argv[])
 	{
 		/* current vertion */
 		ReadFrom(0x0120, readBuf, 8);
-
-		printf("\n[FW Version]\n");
 		printf("%02X%02X %02X%02X %02X%02X %02X%02X\n", readBuf[1], readBuf[0], readBuf[3], readBuf[2], readBuf[5], readBuf[4], readBuf[7], readBuf[6]);
 	}
 	if (nAction == ACTION_BL_MODE)

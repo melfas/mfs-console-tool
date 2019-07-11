@@ -71,7 +71,6 @@ void mfsConfig::ParseArgs(int argc, char* argv[])
 			{
 				mnAction = ACTION_FW_VERSION;
 				nPid = strtol((char *)argv[2], NULL, 16);
-				printf("\nPID : 0x%04X\n", nPid);
 				return;
 			}
 			else if( strcmp(pParam, "-help")==0 )
