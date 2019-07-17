@@ -14,7 +14,7 @@ CFLAGS   ?= -g
 CXX      ?= g++ 
 CXXFLAGS ?= -g
 	
-COBJS     = lib/hid-libusb.o
+COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)

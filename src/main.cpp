@@ -1,13 +1,18 @@
-/*
- * melfas_update_tool
- *
- * Copyright (C) 2019 MELFAS Inc.
- *
- *
- * main.c
- *
- * Version : 2019.06.12
- */
+/*******************************************************
+ Windows HID simplification
+
+ Alan Ott
+ Signal 11 Software
+
+ 8/22/2009
+
+ Copyright 2009, All Rights Reserved.
+ 
+ This contents of this file may be used by anyone
+ for any reason without any conditions and may be
+ used as a starting point for your own applications
+ which use HIDAPI.
+********************************************************/
 
 #include <stdio.h>
 #include <libgen.h>
@@ -98,6 +103,7 @@ uint16_t buf_addr;
 void (*breakCapture)(int);
 
 int excute_fw_update();
+int excute_fw_update_for_script();
 int PageWriteAndVerify(int _nAddr, uint8_t* _pData, int _nLength, int _bVerify );
 int PageRead(int _nAddr, uint8_t* _pBuffer, int _nLength );
 int PageWrite(int _nAddr, uint8_t* _pData, int _nLength);
@@ -105,6 +111,7 @@ int _ReadFromBuf(uint8_t* _pBuf, int _nLength);
 int _WriteIntoBuf(uint8_t* _pData, int _nLength);
 int _WriteTargetAddrAndSize(int _nAddr, int _nSize);
 int change_mode_boot(unsigned char boot_mode);
+int change_mode_boot_for_script(unsigned char boot_mode);
 int bl_read_status();
 int fw_parser_tail(char *path);
 
@@ -417,6 +424,7 @@ FIN:
 
 bool ReadFrom(uint16_t _nSubAddress, uint8_t* _pBuffer, int _nReadLength)
 {
+	// _nReadLength+=HID_CUSTOM_PACKET_HEADER_SIZE;
 	if (!WriteForRead(_nSubAddress, _pBuffer, 0, _nReadLength))
 		return false;
 
@@ -425,6 +433,36 @@ bool ReadFrom(uint16_t _nSubAddress, uint8_t* _pBuffer, int _nReadLength)
 
 	return true;
 }
+
+// int GetShellCommnadResult(const char* _command, const char* _mode, char* _result)
+// {
+// 	char buff[256];
+// 	int nRet = 0;
+// 	FILE *fp;
+
+// 	fp = popen(_command, _mode);
+// 	if (NULL == fp)
+// 	{
+// 		perror("popen() error");
+// 		return -1;
+// 	}
+
+// 	while (fgets(buff, 256, fp))
+// 	{
+// 		printf("%s\n", buff);
+// 	}
+
+// 	if (0 == strcmp(&buff[strlen(buff)-1], ","))
+// 		buff[strlen(buff) - 1] = '\0';
+
+// 	// _result = buff;
+// 	// printf("%s\n", _result);
+// 	memcpy(_result, buff, 256);
+// 	printf("%s\n", _result);
+// 	pclose(fp);
+
+// 	return nRet;
+// }
 
 int main(int argc, char* argv[])
 {
@@ -437,14 +475,16 @@ int main(int argc, char* argv[])
 	if( nAction == ACTION_NULL || nAction == ACTION_HELP)
 	{
 		printf("===========================================================\n");
-		printf("melfas_update_tool for chromeOS (HID_USB) - v1.0.7\n\n");
-		printf("ex) melfas_update_tool -fw_update pid fw_name\n");		
+		printf("melfas_upd-omeOS (HID_USB) - v1.0.8\n\n");
+		printf("ex) melfas_update_tool -fw_update pid [-d(manual) or path(use_script)] fw_name [1(use_script) or 0(manual)]\n");		
+		printf("ex) melfas_update_tool -fw_update pid -d fw_name 0 (manual-update)\n");		
+		printf("ex) melfas_update_tool -fw_update pid /dev/hidpath fw_name 1 (use-script)\n");		
 		printf("ex) melfas_update_tool -fw_version pid\n");		
 		printf("===========================================================\n");
 		return 0;
 	}
 
-	mHandle = hid_open(0x1FD2, mConfig.GetPid(), NULL);
+	mHandle = hid_open(0x1FD2, mConfig.GetPid(), mConfig.GetDevName());
 	if (NULL == mHandle)
 	{
 		printf("Device Open Fail!\n");
@@ -461,15 +501,6 @@ int main(int argc, char* argv[])
 
 		bIsWaitClose = 0;
 
-		thr_id = pthread_create(&p_thread, NULL, t_function, (void *)"Download");
-
-		// pthread_create() 으로 성공적으로 쓰레드가 생성되면 0 이 리턴됩니다
-		if (thr_id < 0)
-		{
-			perror("thread create error : ");
-			exit(0);
-		}
-
 		/* fw loading */
 		char *file_path = mConfig.GetSpecFileName();
 
@@ -480,50 +511,69 @@ int main(int argc, char* argv[])
 			exit(0);
 		}
 
-		/* current vertion */
-		ReadFrom(0x0120, readBuf, 8);
-
-		printf("\n[Current Version]\n");
-		printf("%02X%02X.%02X%02X.%02X%02X.%02X%02X\n", readBuf[1], readBuf[0], readBuf[3], readBuf[2], readBuf[5], readBuf[4], readBuf[7], readBuf[6]);
-
-		system("tput civis");
-
-		/* excute fw update */
-		if (1 == excute_fw_update())
-			printf("=== PASS ===\n\n");
+		if (1 == mConfig.IsUseScript())
+		{
+			excute_fw_update_for_script();
+		}
 		else
-			printf("=== FAIL ===\n\n");
+		{
+			thr_id = pthread_create(&p_thread, NULL, t_function, (void *)"Download");
 
-		pthread_join(p_thread, (void **)&status);
+			// pthread_create() 으로 성공적으로 쓰레드가 생성되면 0 이 리턴됩니다
+			if (thr_id < 0)
+			{
+				perror("thread create error : ");
+				exit(0);
+			}
 
-		system("tput cnorm");
+			/* current vertion */
+			ReadFrom(0x0120, readBuf, 8);
+
+			printf("\n[Current Version]\n");
+			printf("%02X%02X.%02X%02X.%02X%02X.%02X%02X\n", readBuf[1], readBuf[0], readBuf[3], readBuf[2], readBuf[5], readBuf[4], readBuf[7], readBuf[6]);
+
+			system("tput civis");
+
+			/* excute fw update */
+			if (1 == excute_fw_update())
+				printf("=== PASS ===\n\n");
+			else
+				printf("=== FAIL ===\n\n");
+
+			pthread_join(p_thread, (void **)&status);
+
+			system("tput cnorm");
+		}
 	}
 	if (nAction == ACTION_FW_VERSION)
 	{
-		/* current vertion */
+				/* current vertion */
 		ReadFrom(0x0120, readBuf, 8);
+
+		// printf("\n[fw Version]\n");
 		printf("%02X%02X %02X%02X %02X%02X %02X%02X\n", readBuf[1], readBuf[0], readBuf[3], readBuf[2], readBuf[5], readBuf[4], readBuf[7], readBuf[6]);
 	}
+
 	if (nAction == ACTION_BL_MODE)
 	{
-		change_mode_boot(MIP4_BOOT_MODE_BOOT);
+		change_mode_boot_for_script(MIP4_BOOT_MODE_BOOT);
 
-		ReadFrom(0x0120, readBuf, 8);
-		for(int i=0; i<8; i++)
-		{
-			printf("%02X ", readBuf[i]);
-		}
-		printf("\n");
+		// ReadFrom(0x0120, readBuf, 8);
+		// for(int i=0; i<8; i++)
+		// {
+		// 	printf("%02X ", readBuf[i]);
+		// }
+		// printf("\n");
 	}
 	if(nAction == ACTION_APP_MODE)
 	{
-		change_mode_boot(MIP4_BOOT_MODE_APP);
-		ReadFrom(0x0120, readBuf, 8);
-		for(int i=0; i<8; i++)
-		{
-			printf("%02X ", readBuf[i]);
-		}
-		printf("\n");
+		change_mode_boot_for_script(MIP4_BOOT_MODE_APP);
+		// ReadFrom(0x0120, readBuf, 8);
+		// for(int i=0; i<8; i++)
+		// {
+		// 	printf("%02X ", readBuf[i]);
+		// }
+		// printf("\n");
 	}
 
 	hid_close(mHandle);
@@ -692,6 +742,122 @@ int bl_read_status()
 	return 0;
 }
 
+int mode_change_verify(unsigned char boot_mode)
+{
+	unsigned char read_buf[4];
+	unsigned char write_buf[4];
+
+	int nAddr;
+	nAddr = getAddress(MIP4_R0_BOOT, MIP4_R1_BOOT_MODE);
+	int retry = 100;
+	do
+	{
+		/* verify */
+		if (!ReadFrom(nAddr, read_buf, 1))
+		{
+#if DEBUG_LOG
+			printf("change_mode_boot read error\n");
+			printf("hid_close\n");
+#endif
+			hid_close(mHandle);
+			/* Free static HIDAPI objects. */
+			hid_exit();
+
+#if 0
+			printf("hid - re-open\n");
+			usleep(1000 * 1000);
+#endif
+			mHandle = hid_open(0x1FD2, mConfig.GetPid(), NULL);
+		}
+#if DEBUG_LOG
+		printf("change_mode_boot read [%02X]\n", read_buf[0]);
+		printf("change_mode_boot read end\n");
+#endif
+
+		if (boot_mode == read_buf[0])
+		{
+			return 0;
+		}
+		usleep(10);
+	} while (--retry);
+
+	return 1;
+}
+
+int change_mode_boot_for_script(unsigned char boot_mode)
+{
+	error_log = 0;
+#if DEBUG_LOG
+	printf("change_mode_boot [%d]\n", boot_mode);
+#endif
+
+	unsigned char read_buf[4];
+	unsigned char write_buf[4];
+
+	int nAddr;
+	nAddr = getAddress(MIP4_R0_BOOT, MIP4_R1_BOOT_MODE);
+	int retry = 1000;
+
+	write_buf[0] = boot_mode;
+	if (!WriteTo(nAddr, write_buf, 1))
+	{
+#if DEBUG_LOG
+		printf("change_mode_boot write error\n");
+#endif
+
+		goto error;
+	}
+
+#if DEBUG_LOG
+	printf("change_mode_boot write end\n");
+#endif
+
+
+	/* delay */
+	usleep(1000*3000);
+
+#if 0
+	do
+	{
+		/* verify */
+		if (!ReadFrom(nAddr, read_buf, 1))
+		{
+#if DEBUG_LOG
+			printf("change_mode_boot read error\n");
+			printf("hid_close\n");
+#endif
+			hid_close(mHandle);
+			/* Free static HIDAPI objects. */
+			hid_exit();
+
+#if 1
+			printf("hid - re-open\n");
+			usleep(1000*1000);
+#endif
+			mHandle = hid_open(0x1FD2, mConfig.GetPid(), NULL);
+		}
+#if DEBUG_LOG
+		printf("change_mode_boot read [%02X]\n", read_buf[0]);
+		printf("change_mode_boot read end\n");
+#endif
+
+		if (boot_mode == read_buf[0])
+		{
+			return 0;
+		}
+		usleep(10);
+	} while (--retry);
+#endif
+
+	error_log = 1;
+
+	return 0;
+
+error:
+	error_log = 1;
+	return 1;
+}
+
 int change_mode_boot(unsigned char boot_mode)
 {
 	error_log = 0;
@@ -739,6 +905,7 @@ int change_mode_boot(unsigned char boot_mode)
 
 #if DEBUG_LOG
 			printf("hid - re-open\n");
+			usleep(1000*1000);
 #endif
 			mHandle = hid_open(0x1FD2, mConfig.GetPid(), NULL);
 		}
@@ -979,6 +1146,144 @@ error:
 	return 0;
 }
 
+int excute_fw_update_for_script()
+{
+	unsigned char read_buf[1024];
+	unsigned char write_buf[1024];
+
+	// int nAddr;
+	int nAddr;
+	int nOffset;
+	int nStartAddr;
+	int nBinarySize;
+	int nLastAddr;
+	int nLength;
+
+	int nStepSize;
+	uint8_t *pBin;
+	int page = 2;
+
+	/* read info */
+	nAddr = getAddress(MIP4_R0_BOOT, MIP4_R1_BOOT_BUF_ADDR);
+	if (!ReadFrom(nAddr, read_buf, 2))
+	{
+		printf("read info error\n");
+		goto error;
+	}
+
+	buf_addr = (uint16_t)((read_buf[1] & 0x00FF) << 8 | (read_buf[0] & 0xFF00) >> 8);
+#if DEBUG_LOG
+	printf("boot address : 0x%04X[%02X, %02X]\n", buf_addr, read_buf[0], read_buf[1]);
+#endif
+
+	/* mass erase */
+	// printf("mass erase\n");
+
+	nAddr = getAddress(MIP4_R0_BOOT, MIP4_R1_BOOT_CMD);
+	write_buf[0] = MIP4_BOOT_CMD_MASS_ERASE;
+	WriteTo(nAddr, write_buf, 1);
+
+	if (!bl_read_status())
+	{
+		printf("ready status error! [%d]", __LINE__);
+		goto error;
+	}
+
+	/* write & verify */
+	pBin = pfwBuf;
+
+	nStartAddr = fw_tail.bin_start_addr;
+	nBinarySize = fw_tail.bin_length;
+	nLastAddr = nStartAddr + nBinarySize;
+
+	nStepSize = MIP4_BL_PAGE_SIZE;
+
+	nLength = nStepSize;
+
+#if DEBUG_LOG
+	printf("%02X ", pBin[0]);
+	for (int i = 1; i < binfile_length; i++)
+	{
+		printf("%02X ", pBin[i]);
+		if (((i + 1) % 16 == 0))
+			printf("\n");
+	}
+	printf("\n");
+#endif
+
+#if DEBUG_LOG
+	printf(("=========================\n"));
+	printf((">>> Download Flow sample\n"));
+	printf(("=========================\n"));
+	printf(("> Start address   : 0x%04X\n"), nStartAddr);
+	printf(("> Last address    : 0x%04X\n"), nLastAddr);
+	printf(("> Actual size     : 0x%04X\n"), nBinarySize);
+	printf(("> Erase size      : 0x%04X\n"), nStepSize);
+	// printf(("> Read Write size : 0x%04X\n"), mSpec.GetRwSize());
+	// printf(("> Split size      : 0x%04X\n"), mSpec.GetRwSplitSize());
+	printf(("=========================\n"));
+	printf(("\n"));
+
+	// goto error;
+#endif
+
+	//------------------------------------
+	// 2nd page ~ last page
+	//------------------------------------
+	page = 0;
+	for (nAddr = (nStartAddr + nStepSize); nAddr < nLastAddr; nAddr += nLength)
+	{
+		nOffset = nAddr - nStartAddr;
+		dl_step = nOffset / 4;
+		dl_total = nBinarySize / 4;
+		if ((nLastAddr - nAddr) < nLength)
+		{
+			nLength = nLastAddr - nAddr;
+		}
+
+#if DEBUG_LOG
+		printf("[addr : 0x%06X]\n", nAddr);
+		printf("[page : %d / offset : 0x%04X ]\n", page, nOffset);
+#endif
+		if (0 == PageWriteAndVerify(nAddr, &pBin[nOffset], nLength, 1))
+			goto error;
+
+		if (0 == thread_flag)
+			goto error;
+		page++;
+	}
+
+	//------------------------------------
+	// The 1st page ~ last page
+	//------------------------------------
+
+	nAddr = nStartAddr;
+	nLength = nStepSize;
+	nOffset = 0;
+
+	if ((nLastAddr - nAddr) < nLength)
+		nLength = nLastAddr - nAddr;
+
+	if (0 == PageWriteAndVerify(nAddr, &pBin[0], nLength, 1))
+		goto error;
+
+	dl_step = nBinarySize / 4;
+	dl_total = nBinarySize / 4;
+
+	usleep(10 * 1000);
+
+	page++;
+#if DEBUG_LOG
+	printf("\npage : %d\n", page);
+#endif
+
+	return 1;
+
+error:
+
+	return 0;
+}
+
 int excute_fw_update()
 {
 	unsigned char read_buf[1024];
@@ -995,8 +1300,8 @@ int excute_fw_update()
 	uint8_t *pBin;
 	int page = 2;
 
-	/* enter boot mode */
-	printf("\nmode change to boot\n");
+	// /* enter boot mode */
+	// printf("\nmode change to boot\n");
 	if (change_mode_boot(MIP4_BOOT_MODE_BOOT))
 		goto error;
 
@@ -1114,11 +1419,11 @@ int excute_fw_update()
 	printf("\npage : %d\n", page);
 #endif
 
-	/* exit boot mode */
-	printf("\nmode change to app\n\n");
+	// /* exit boot mode */
+	// printf("\nmode change to app\n\n");
 	change_mode_boot(MIP4_BOOT_MODE_APP);
 
-	//
+	
 	memset(read_buf, 0x00, sizeof(read_buf));
 	ReadFrom(0x0120, read_buf, 8);
 

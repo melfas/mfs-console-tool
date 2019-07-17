@@ -25,6 +25,8 @@ protected:
 	int	mbLogFile;
   char* pSpecName;
   int nPid;
+  wchar_t* dev_name;
+  int nUseScript;
 
 public:
 
@@ -48,6 +50,8 @@ public:
 
   bool GetLogFileEnabled(void);
   char *GetSpecFileName(void);
+  wchar_t *GetDevName(void);
+  int IsUseScript(void);
 
   void PrintIniInfo(void);
 
