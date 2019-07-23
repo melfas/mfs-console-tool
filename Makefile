@@ -19,10 +19,8 @@ CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = $(shell pkg-config libusb-1.0 --libs)
-LDFLAGS   += $(shell pkg-config libudev --libs)
-LIBS      = -lrt -lpthread
-INCLUDES = -I include/
-INCLUDES += $(shell pkg-config libusb-1.0 --cflags)
+LIBS      = -ludev -lrt -lpthread
+INCLUDES ?= -I include/ $(shell pkg-config libusb-1.0 --cflags)
 
 melfas_update_tool: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
