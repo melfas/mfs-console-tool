@@ -40,7 +40,7 @@
 /* Linux */
 #include <linux/hidraw.h>
 #include <linux/version.h>
-#include <libudev.h>
+#include "libudev.h"
 
 #include "hidapi.h"
 
