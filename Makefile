@@ -23,7 +23,7 @@ LIBS      = -lpthread $(shell pkg-config libusb-1.0 libudev --libs)
 INCLUDES ?= -I include/ $(shell pkg-config libusb-1.0 --cflags)
 
 melfas_update_tool: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $< -o melfas_update_tool $^ $(LIBS)
 
 $(COBJS): %.o: %.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $(INCLUDES) $< -o $@
