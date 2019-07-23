@@ -13,23 +13,26 @@ CFLAGS   ?= -g
 
 CXX      ?= g++ 
 CXXFLAGS ?= -g
+PKG_CONFIG ?= pkg-config
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
-LDFLAGS   = -fPIC
-LIBS      = -lpthread $(shell pkg-config libusb-1.0 libudev --libs)
-INCLUDES ?= -I include/ $(shell pkg-config libusb-1.0 --cflags)
+LDFLAGS   = 
+LIBS      = -lrt -lpthread
+LIBS	  += $(shell ${PKG_CONFIG} --libs libusb-1.0)
+LIBS	  += $(shell ${PKG_CONFIG} --libs libudev)
+INCLUDES ?= -I include/ $(shell ${PKG_CONFIG} --cflags libusb-1.0)
 
 melfas_update_tool: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $< -o melfas_update_tool $^ $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c $(INCLUDES) $< -o $@
+	$(CC) $(CFLAGS) -c $(INCLUDES) $< -o $@
 
 $(CPPOBJS): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(INCLUDES) $< -o $@
+	$(CXX) $(CXXFLAGS) -c $(INCLUDES) $< -o $@
 
 clean:
 	rm -f $(OBJS) melfas_update_tool
