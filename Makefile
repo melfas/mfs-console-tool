@@ -21,7 +21,7 @@ OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = $(shell pkg-config libusb-1.0 --libs)
 LDFLAGS   += $(shell pkg-config libudev --libs)
 LIBS      = -lpthread
-INCLUDES = -I include/
+INCLUDES = -I include/ -I/usr/include/
 INCLUDES += $(shell pkg-config libusb-1.0 --cflags)
 
 melfas_update_tool: $(OBJS)
