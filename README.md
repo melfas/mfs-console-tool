@@ -7,4 +7,5 @@
  
 # Run
  - Update Firmware : 
-   - ./melfas_update_tool -fw_update pid fw_name.bin
+   - ./melfas_update_tool -fw_update pid [dev_path or -d] fw_name.bin <0(manual update) or 1>
+   - ./melfas_update_tool -fw_version pid
