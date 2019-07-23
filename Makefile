@@ -24,6 +24,11 @@ LIBS      = -lpthread
 INCLUDES = -I include/ -I/usr/include/
 INCLUDES += $(shell pkg-config libusb-1.0 --cflags)
 
+@echo ==========================
+@echo $(INCLUDES)
+@echo $(LDFLAGS)
+@echo ==========================
+
 melfas_update_tool: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
