@@ -16,8 +16,8 @@ CXXFLAGS ?= -g
 PKG_CONFIG ?= pkg-config
 PKG_CONFIG += --static
 LIB_DEPS := libusb-1.0 libudev
-PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs  $(LIB_DEPS)) 
-PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS)) 
+PKG_CONFIG_LIB := $(PKG_CONFIG) --libs $(LIB_DEPS)
+PKG_CONFIG_INCLUDE := $(PKG_CONFIG) --cflags $(LIB_DEPS) 
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
