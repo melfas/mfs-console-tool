@@ -15,18 +15,17 @@ CXX      ?= g++
 CXXFLAGS ?= -g
 
 PKG_CONFIG ?= pkg-config
-BASE_VER ?= 462023
 
-LIB_DEPS := libchrome-$(BASE_VER) libusb-1.0 libudev
-PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS)) 
-PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs  $(LIB_DEPS)) 
+LIB_DEPS := libusb libudev
+PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS))
+PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs  $(LIB_DEPS))
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = -fPIC
-LIBS      = -lrt -lpthread ${PKG_CONFIG_LIB} 
+LIBS      = -lrt -lpthread ${PKG_CONFIG_LIB}
 INCLUDES ?= -I include/ ${PKG_CONFIG_INCLUDE}
 
 melfas_update_tool: $(OBJS)
