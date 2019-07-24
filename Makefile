@@ -8,17 +8,16 @@
 
 all: melfas_update_tool
 
-BASE_VER ?= 125070
-
 CC       ?= gcc
 CFLAGS   ?= -g
 
 CXX      ?= g++ 
 CXXFLAGS ?= -g
 PKG_CONFIG ?= pkg-config
-LIB_DEPS := libchrome-$(BASE_VER)
-PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs libusb-1.0 libudev $(LIB_DEPS)) 
-PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags libusb-1.0 $(LIB_DEPS)) 
+PKG_CONFIG += --static
+LIB_DEPS := libusb-1.0 libudev
+PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs  $(LIB_DEPS)) 
+PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS)) 
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
