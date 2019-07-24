@@ -13,8 +13,10 @@ CFLAGS   ?= -g
 
 CXX      ?= g++ 
 CXXFLAGS ?= -g
-PKG_CONFIG_LIB := $(shell pkg-config --libs libusb libudev) 
-PKG_CONFIG_INCLUDE := $(shell pkg-config --cflags libusb) 
+PKG_CONFIG ?= pkg-config
+LIB_DEPS := libusb-1.0 libudev
+PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs $(LIB_DEPS)) 
+PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS)) 
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
