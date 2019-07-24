@@ -13,20 +13,21 @@ CFLAGS   ?= -g
 
 CXX      ?= g++ 
 CXXFLAGS ?= -g
-PKG_CONFIG ?= pkg-config
+PKG_CONFIG_LIB := $(shell pkg-config --libs libusb libudev) 
+PKG_CONFIG_INCLUDE := $(shell pkg-config --cflags libusb) 
 	
 COBJS     = lib/hid.o
 CPPOBJS   = src/main.o
 CPPOBJS   += src/mfsConfig.o
 OBJS      = $(COBJS) $(CPPOBJS)
 LDFLAGS   = -fPIC
-LIBS      = -lrt -lpthread $(shell ${PKG_CONFIG} --libs libusb libudev)
-INCLUDES ?= -I include/ $(shell ${PKG_CONFIG} --cflags libusb)
+LIBS      = -lrt -lpthread ${PKG_CONFIG_LIB} 
+INCLUDES ?= -I include/ ${PKG_CONFIG_INCLUDE}
 
 melfas_update_tool: $(OBJS)
-	echo $(LD_LIBRARY_PATH)
-	echo $(PKG_CONFIG_PATH)
-	pkg-config --list-all
+	#echo $(LD_LIBRARY_PATH)
+	#echo $(PKG_CONFIG_PATH)
+	#pkg-config --list-all
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
