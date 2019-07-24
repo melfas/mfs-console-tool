@@ -26,7 +26,7 @@ INCLUDES ?= -I include/ $(shell ${PKG_CONFIG} --cflags libusb)
 melfas_update_tool: $(OBJS)
 	echo $(LD_LIBRARY_PATH)
 	echo $(PKG_CONFIG_PATH)
-	$(shell ${PKG_CONFIG} --list-all)
+	pkg-config --list-all
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
