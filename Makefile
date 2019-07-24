@@ -24,7 +24,7 @@ LIBS      = -lrt -lpthread $(shell ${PKG_CONFIG} --libs libusb libudev)
 INCLUDES ?= -I include/ $(shell ${PKG_CONFIG} --cflags libusb)
 
 melfas_update_tool: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) PKG_CONFIG_PATH=$(PKG_CONFIG_PATH) $(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
 	$(CC) $(CFLAGS) -c $(INCLUDES) $< -o $@
