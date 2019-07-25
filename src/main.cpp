@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
 	if( nAction == ACTION_NULL || nAction == ACTION_HELP)
 	{
 		printf("===========================================================\n");
-		printf("melfas_upd-omeOS (HID_USB) - v1.0.9\n\n");
+		printf("melfas_upd-omeOS (HID_USB) - v1.1.0\n\n");
 		printf("ex) melfas_update_tool -fw_update pid [-d(manual) or path(use_script)] fw_name [1(use_script) or 0(manual)]\n");		
 		printf("ex) melfas_update_tool -fw_update pid -d fw_name 0 (manual-update)\n");		
 		printf("ex) melfas_update_tool -fw_update pid /dev/hidpath fw_name 1 (use-script)\n");		
@@ -1427,7 +1427,7 @@ int excute_fw_update()
 	memset(read_buf, 0x00, sizeof(read_buf));
 	ReadFrom(0x0120, read_buf, 8);
 
-	printf("[New Version]\n");
+	printf("\n[New Version]\n");
 	printf("%02X%02X.%02X%02X.%02X%02X.%02X%02X\n\n", read_buf[1], read_buf[0],read_buf[3], read_buf[2],read_buf[5], read_buf[4], read_buf[7], read_buf[6]);
 
 	return 1;

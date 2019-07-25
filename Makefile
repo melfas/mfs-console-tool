@@ -15,8 +15,7 @@ CXX      ?= g++
 CXXFLAGS ?= -g
 
 PKG_CONFIG ?= pkg-config
-
-LIB_DEPS := libusb libudev
+LIB_DEPS := libusb-1.0 libudev
 PKG_CONFIG_INCLUDE := $(shell $(PKG_CONFIG) --cflags $(LIB_DEPS))
 PKG_CONFIG_LIB := $(shell $(PKG_CONFIG) --libs  $(LIB_DEPS))
 	
