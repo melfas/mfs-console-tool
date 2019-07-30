@@ -31,10 +31,10 @@ melfas_update_tool: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) -o melfas_update_tool
 
 $(COBJS): %.o: %.c
-	$(CC) $(CFLAGS) -c $(INCLUDES) $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $(INCLUDES) $< -o $@
 
 $(CPPOBJS): %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $(INCLUDES) $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(INCLUDES) $< -o $@
 
 clean:
 	rm -f $(OBJS) melfas_update_tool
