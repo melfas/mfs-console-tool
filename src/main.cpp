@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
 	if( nAction == ACTION_NULL || nAction == ACTION_HELP)
 	{
 		printf("===========================================================\n");
-		printf("melfas_upd-omeOS (HID_USB) - v1.1.1\n\n");
+		printf("melfas_upd-omeOS (HID_USB) - v1.1.2\n\n");
 		printf("ex) melfas_update_tool -fw_update pid [-d(manual) or path(use_script)] fw_name [1(use_script) or 0(manual)]\n");		
 		printf("ex) melfas_update_tool -fw_update pid -d fw_name 0 (manual-update)\n");		
 		printf("ex) melfas_update_tool -fw_update pid /dev/hidpath fw_name 1 (use-script)\n");		
@@ -708,7 +708,7 @@ int bl_read_status()
 	unsigned char read_buf[4];
 
 	int result;
-	int retry = 1000;
+	int retry = 1000000;
 	int nAddr;
 
 	nAddr = getAddress(MIP4_R0_BOOT, MIP4_R1_BOOT_STATUS);
@@ -735,7 +735,7 @@ int bl_read_status()
 				break;
 		}
 
-		usleep(1*1000);
+		// usleep(10*1000);
 
 	} while (--retry);
 
@@ -814,7 +814,7 @@ int change_mode_boot_for_script(unsigned char boot_mode)
 
 
 	/* delay */
-	usleep(1000*3000);
+	// usleep(10*1000);
 
 #if 0
 	do
@@ -1270,7 +1270,7 @@ int excute_fw_update_for_script()
 	dl_step = nBinarySize / 4;
 	dl_total = nBinarySize / 4;
 
-	usleep(10 * 1000);
+	// usleep(10);
 
 	page++;
 #if DEBUG_LOG
